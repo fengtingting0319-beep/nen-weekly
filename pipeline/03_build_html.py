@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import content as _content
 from content import HIGHLIGHTS, TOP10, SUMMARIES
 from content_clinical import CLINICAL
-from content_guidelines import GUIDELINES
+from content_guidelines import GUIDELINES, GUIDELINES_INTL
 # 本期关键结论（编辑维护，content.py 中 OVERVIEW；自动运行无编辑内容时为空 → 显示待补充空态）
 OVERVIEW = getattr(_content, "OVERVIEW", "")
 
@@ -50,6 +50,26 @@ def auto_excerpt(p, n=200):
     cut = a[:n]
     dot = cut.rfind(". ")
     return (cut[:dot + 1].strip() if dot > n * 0.5 else cut.rstrip()) + " …"
+
+def grade_rationale(p):
+    """等级评估依据：与 02_process.grade() 同一规则集的反向解释，逐卡展示。"""
+    types = " ".join(p.get("types") or []).lower() + " " + p["title"].lower()
+    if p["grade"] == "S":
+        basis = "顶刊（已核实 IF≥15）" if (p["if"] or 0) >= 15 else "随机对照试验（RCT）"
+    elif p["grade"] == "A":
+        if "meta-analysis" in types or "systematic review" in types:
+            basis = "系统评价/荟萃分析"
+        elif "multicent" in types:
+            basis = "多中心研究"
+        else:
+            basis = "前瞻性研究"
+    elif p["grade"] == "C":
+        basis = "病例报告" if "case reports" in types else "评论/信件/观点类文献"
+    else:
+        basis = "回顾性队列/单中心研究/综述或机制研究"
+    ifv = f'IF {p["if"]}（JCR 2025 已核实）' if p["if_verified"] else "IF 待核实（不填推算值）"
+    tier_lbl = "核心 NEN（题名级判定）" if p["tier"] == "core" else "直接相关（摘要级判定）"
+    return f"{basis} ｜ {ifv} ｜ 相关度：{tier_lbl}"
 
 GRADE_COLOR = {"S": "#c0392b", "A": "#0279EE", "B": "#75A025", "C": "#888"}
 TIER_LABEL = {"core": "核心 NEN", "direct": "直接相关"}
@@ -132,6 +152,7 @@ def paper_card(i, p):
 <span class="tier">{TIER_LABEL[p['tier']]}</span><span class="jif">{esc(ifv)}</span></div>
 <h3>{esc(p['title'])}</h3>
 <div class="meta">{esc(p['journal'])} · {esc(p['pubdate'])} · {' · '.join(links)}</div>
+<div class="gradebasis">等级评估：{p['grade']}（{esc(grade_rationale(p))}）</div>
 <div class="tags">{tags_html}</div>
 {clin_html}
 <details><summary>中文要点</summary><p>{summ_html}</p></details>
@@ -213,6 +234,8 @@ details p {{ font-size:.9rem; margin:8px 0 2px; }}
 .clin.design b {{ color:#9a7d00; }}
 .abs {{ color:#444; font-size:.84rem; }}
 .autopend {{ display:block; color:#999; font-size:.75rem; margin-top:4px; }}
+.gradebasis {{ font-size:.78rem; color:#5a6b7a; background:#0279EE0d; border-left:3px solid var(--accent);
+  border-radius:4px; padding:4px 10px; margin:6px 0 2px; }}
 .pill {{ background:#ECE9E2; border-radius:12px; padding:1px 10px; font-size:.8rem; white-space:nowrap; }}
 table {{ width:100%; border-collapse:collapse; background:var(--card); font-size:.85rem; }}
 th, td {{ text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }}
@@ -260,7 +283,7 @@ html {{ scroll-behavior:smooth; scroll-padding-top:64px; }}
 <a href="#top10" data-sec="top10">精读 Top10</a>
 <a href="#papers" data-sec="papers">全部文献 {n_final}</a>
 <a href="#trials" data-sec="trials">临床试验 {n_trials}</a>
-<a href="#guidelines" data-sec="guidelines">中国指南 {len(GUIDELINES)}</a>
+<a href="#guidelines" data-sec="guidelines">指南共识 {len(GUIDELINES) + len(GUIDELINES_INTL)}</a>
 <a href="#methods" data-sec="methods">方法与检索式</a>
 </div>
 <span class="navdate">{W0} → {W1}</span>
@@ -317,7 +340,7 @@ html {{ scroll-behavior:smooth; scroll-padding-top:64px; }}
 {''.join(top10_cards) or '<div class="note">精读卡片待编辑补充：自动运行生成基础版时，此板块由编辑在下次会话中基于当期摘要撰写。</div>'}
 
 <h2 id="papers">本周全部文献 <small>{n_final} 篇 · 每篇均附中文要点 + 英文摘要原文 · 支持分级、相关度、主题三重筛选</small></h2>
-<div class="note">分级口径：S = 顶刊（已核实 IF≥15）或可能改变临床实践；A = 前瞻性/随机/多中心研究或系统评价；B = 单中心回顾性队列、机制研究或综述；C = 观点/病例类文献。中文要点严格依据英文摘要原文归纳，未引入摘要以外的信息；每篇同时保留英文摘要原文以便核对。</div>
+<div class="note">分级口径：S = 顶刊（已核实 IF≥15）或可能改变临床实践；A = 前瞻性/随机/多中心研究或系统评价；B = 单中心回顾性队列、机制研究或综述；C = 观点/病例类文献。每张卡片的「等级评估」行展示该篇的判定依据（文献类型、IF 核实情况、相关度判定层级），与分级脚本同一规则集。中文要点严格依据英文摘要原文归纳，未引入摘要以外的信息；每篇同时保留英文摘要原文以便核对。</div>
 <div class="filters" id="gradeF"><button class="on" data-g="all">全部 {n_final}</button>
 {''.join(f'<button data-g="{g}">{g} 级 {grades[g]}</button>' for g in "SABC" if grades[g] > 0)}
 <select id="tierF"><option value="all">相关度：全部</option><option value="core">核心 NEN</option><option value="direct">直接相关</option></select>
@@ -329,7 +352,7 @@ html {{ scroll-behavior:smooth; scroll-padding-top:64px; }}
 <table id="trials"><thead><tr><th>NCT 编号</th><th>适应证 / 研究题目</th><th>分期</th><th>干预措施</th><th>状态</th><th>最近更新</th></tr></thead>
 <tbody>{''.join(trial_row(t) for t in trials)}</tbody></table>
 
-<h2 id="guidelines">中国共识与指南 <small>现行重要指南清单（编辑维护）+ 本周窗口内新发表动态（自动检索）</small></h2>
+<h2 id="guidelines">指南共识 <small>中国指南清单 + 国际指南（ENETS · NCCN · NANETS · WHO）+ 本周窗口内新发指南动态（自动检索）</small></h2>
 <div class="card">
 <h3>本周窗口内新发表的中国指南/共识</h3>
 {''.join(f'<p style="font-size:.9rem"><b>{esc(p["title"])}</b> — {esc(p["journal"])} · <a href="https://pubmed.ncbi.nlm.nih.gov/{p["pmid"]}/" target="_blank">PMID:{p["pmid"]}</a></p>' for p in weekly_guidelines) or f'<p style="font-size:.9rem;color:#777">本周窗口（{W0} 至 {W1}）内未检索到新发表的中国 NEN 指南/共识（PubMed Q4 + Europe PMC 定向检索，题名级判定）。现行指南以下表为准。</p>'}
@@ -339,7 +362,14 @@ html {{ scroll-behavior:smooth; scroll-padding-top:64px; }}
 <table><thead><tr><th>指南 / 共识</th><th>制定机构</th><th>出处 / 版本</th><th>覆盖范围</th><th>要点</th></tr></thead><tbody>
 {''.join(f'<tr><td><b>{esc(g["title"])}</b></td><td>{esc(g["org"])}</td><td>{esc(g["source"])}<br>' + (f'<a href="https://doi.org/{esc(g["doi"])}" target="_blank">DOI</a>' if g["doi"] else (f'<a href="{esc(g["url"])}" target="_blank">链接</a>' if g["url"] else '')) + f'</td><td><span class="pill">{esc(g["scope"])}</span></td><td style="font-size:.8rem">{esc(g["note"])}</td></tr>' for g in GUIDELINES)}
 </tbody></table>
-<div class="note">清单由编辑核实维护（2026-09 核对出版社/期刊来源）；新版本发布时更新此表并在「本周看点」中提示。国际指南（ENETS、NANETS/NCCN、WHO 分类更新）如需纳入可扩展此表。</div>
+<div class="note">清单由编辑核实维护（2026-09 核对出版社/期刊来源）；新版本发布时更新此表并在「本周看点」中提示。</div>
+</div>
+<div class="card">
+<h3>现行国际指南与 WHO 分类（{len(GUIDELINES_INTL)} 项 · 编辑核实维护）</h3>
+<table><thead><tr><th>指南 / 分类</th><th>制定机构</th><th>出处 / 版本</th><th>覆盖范围</th><th>要点</th></tr></thead><tbody>
+{''.join(f'<tr><td><b>{esc(g["title"])}</b></td><td>{esc(g["org"])}</td><td>{esc(g["source"])}<br>' + (f'<a href="https://doi.org/{esc(g["doi"])}" target="_blank">DOI</a>' if g["doi"] else (f'<a href="{esc(g["url"])}" target="_blank">链接</a>' if g["url"] else '')) + f'</td><td><span class="pill">{esc(g["scope"])}</span></td><td style="font-size:.8rem">{esc(g["note"])}</td></tr>' for g in GUIDELINES_INTL)}
+</tbody></table>
+<div class="note">国际指南清单由编辑核实维护（2026-10 核对 ENETS 官网、NCCN.org、NANETS.net 与 IARC 出版页）；ENETS 各部位指导文件持续更新，NCCN 版本号以 NCCN.org 实时版本为准。</div>
 </div>
 
 <h2 id="methods">方法与检索式 <small>供课题组复核与复现</small></h2>

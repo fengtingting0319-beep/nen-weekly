@@ -5,7 +5,7 @@ import json, sys, os, re
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from content import HIGHLIGHTS, TOP10, SUMMARIES
 from content_clinical import CLINICAL
-from content_guidelines import GUIDELINES
+from content_guidelines import GUIDELINES, GUIDELINES_INTL
 
 PROCESSED = sys.argv[1] if len(sys.argv) > 1 else "/workspace/nen_weekly/processed.json"
 RAW = sys.argv[2] if len(sys.argv) > 2 else "/workspace/nen_weekly/raw"
@@ -76,6 +76,11 @@ for i, p in enumerate(final, 1):
 L.append("\n## 中国共识与指南\n")
 L.append("### 现行重要中国指南/共识清单（编辑核实维护）\n")
 for g in GUIDELINES:
+    src = g["source"] + (f" · DOI: {g['doi']}" if g.get("doi") else "")
+    L.append(f"- **{g['title']}**（{g['org']}）— {src} · 覆盖：{g['scope']}")
+    L.append(f"  - {g['note']}")
+L.append("\n### 现行国际指南与 WHO 分类（编辑核实维护）\n")
+for g in GUIDELINES_INTL:
     src = g["source"] + (f" · DOI: {g['doi']}" if g.get("doi") else "")
     L.append(f"- **{g['title']}**（{g['org']}）— {src} · 覆盖：{g['scope']}")
     L.append(f"  - {g['note']}")
