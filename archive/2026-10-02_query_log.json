@@ -1,0 +1,54 @@
+{
+  "window": [
+    "2026-09-25",
+    "2026-10-02"
+  ],
+  "sources": {
+    "pubmed_Q1_disease": {
+      "query": "(\"neuroendocrine tumor\"[tiab] OR \"neuroendocrine tumors\"[tiab] OR \"neuroendocrine neoplasm\"[tiab] OR \"neuroendocrine neoplasms\"[tiab] OR \"neuroendocrine cancer\"[tiab] OR \"neuroendocrine carcinomas\"[tiab] OR NEN[tiab] OR GEP-NEN[tiab] OR GEP-NET[tiab] OR pNET[tiab] OR pNEN[tiab] OR \"pancreatic neuroendocrine\"[tiab] OR \"gastroenteropancreatic neuroendocrine\"[tiab] OR carcinoid[tiab] OR \" Merkel cell\"[tiab] OR \"medullary thyroid\"[tiab] OR \"pheochromocytoma\"[tiab] OR \"paraganglioma\"[tiab]) AND (\"2026-09-25\"[EDAT] : \"2026-10-02\"[EDAT])",
+      "count": 107
+    },
+    "pubmed_Q2_treatment": {
+      "query": "(neuroendocrine[tiab] OR carcinoid[tiab] OR pheochromocytoma[tiab] OR paraganglioma[tiab]) AND (PRRT[tiab] OR DOTATATE[tiab] OR DOTATOC[tiab] OR lutathera[tiab] OR \"peptide receptor\"[tiab] OR octreotide[tiab] OR lanreotide[tiab] OR pasireotide[tiab] OR everolimus[tiab] OR surufatinib[tiab] OR cabozantinib[tiab] OR lutetium-177[tiab] OR \"liver transplant\"[tiab] OR metastasectomy[tiab] OR \"telotristat\"[tiab]) AND (\"2026-09-25\"[EDAT] : \"2026-10-02\"[EDAT])",
+      "count": 18
+    },
+    "pubmed_Q3_mesh": {
+      "query": "(\"Neuroendocrine Tumors\"[Mesh] OR \"Carcinoid Tumors\"[Mesh] OR \"Pheochromocytoma\"[Mesh] OR \"Paraganglioma\"[Mesh] OR \"Medullary Thyroid Carcinoma\"[Mesh] OR \"Merkel Cell Carcinoma\"[Mesh]) AND (\"2026-09-25\"[EDAT] : \"2026-10-02\"[EDAT])",
+      "count": 60
+    },
+    "pubmed_Q4_guideline_cn": {
+      "query": "(neuroendocrine[tiab] OR carcinoid[tiab] OR pheochromocytoma[tiab] OR paraganglioma[tiab] OR \"medullary thyroid\"[tiab]) AND (consensus[tiab] OR guideline*[tiab] OR \"expert agreement\"[tiab] OR \"expert recommendation\"[tiab]) AND (China[tiab] OR Chinese[tiab]) AND (\"2026-09-25\"[EDAT] : \"2026-10-02\"[EDAT])",
+      "count": 0
+    },
+    "pubmed_fetch": {
+      "ids": 157
+    },
+    "europepmc_main_OR": {
+      "query": "(\"neuroendocrine tumor\" OR \"neuroendocrine tumors\" OR \"neuroendocrine neoplasm\" OR \"neuroendocrine neoplasms\" OR \"neuroendocrine cancer\" OR NEN OR GEP-NEN OR GEP-NET OR pNET OR pNEN OR \"pancreatic neuroendocrine\" OR \"gastroenteropancreatic neuroendocrine\" OR carcinoid OR \"carcinoid tumor\" OR pheochromocytoma OR paraganglioma OR \"medullary thyroid carcinoma\" OR \"Merkel cell carcinoma\") AND (FIRST_PDATE:[2026-09-25 TO 2026-10-02])",
+      "count": 116
+    },
+    "europepmc_directed_AND": {
+      "query": "(neuroendocrine OR carcinoid) AND (PRRT OR DOTATATE OR DOTATOC OR lutathera OR \"peptide receptor radionuclide\" OR octreotide OR lanreotide OR pasireotide OR everolimus OR surufatinib OR cabozantinib OR \"liver metastas*\") AND (FIRST_PDATE:[2026-09-25 TO 2026-10-02])",
+      "count": 16
+    },
+    "europepmc_guideline_cn": {
+      "query": "(neuroendocrine AND (China OR Chinese) AND (consensus OR guideline OR \"expert recommendation\")) AND (FIRST_PDATE:[2026-09-25 TO 2026-10-02])",
+      "count": 14
+    },
+    "ctgov_cond": {
+      "query": "(\"neuroendocrine tumors\" OR \"neuroendocrine tumor\" OR \"neuroendocrine neoplasm\" OR carcinoid OR pheochromocytoma OR paraganglioma OR \"pancreatic neuroendocrine\" OR \"gastroenteropancreatic neuroendocrine\")",
+      "count": 87
+    },
+    "ctgov_intr": {
+      "query": "(\"peptide receptor radionuclide\" OR PRRT OR DOTATATE OR DOTATOC OR lutathera OR octreotide OR lanreotide OR pasireotide OR telotristat) AND (neuroendocrine OR carcinoid)",
+      "count": 7
+    },
+    "ctgov_term": {
+      "query": "\"neuroendocrine tumor\" OR \"neuroendocrine cancer\" OR GEP-NET OR pNET",
+      "count": 94
+    },
+    "openalex": {
+      "status": "failed (HTTP 429 / quota)"
+    }
+  }
+}
